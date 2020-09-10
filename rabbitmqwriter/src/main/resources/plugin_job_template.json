@@ -1,0 +1,10 @@
+{
+    "name": "rabbitmqwriter",
+    "parameter": {
+        "path": "",
+        "fileName": "",
+        "writeMode": "",
+        "fieldDelimiter":"",
+        "dateFormat": ""
+    }
+}
