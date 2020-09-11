@@ -187,7 +187,7 @@ public class RabbitmqWriter extends Writer {
 					
 					index++;
 
-					if (index % 10 == 0) {
+					if (index % batchSize == 0) {
 						sendMessage(dataList);
 					}
 				}
