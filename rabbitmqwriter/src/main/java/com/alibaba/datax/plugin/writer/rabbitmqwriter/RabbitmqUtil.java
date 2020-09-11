@@ -16,6 +16,7 @@ import com.rabbitmq.client.ConnectionFactory;
  * @author jiangdw
  *
  */
+@Deprecated
 public class RabbitmqUtil {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RabbitmqUtil.class);

@@ -169,7 +169,6 @@ public class RabbitmqWriter extends Writer {
 			int index = 0;
 			try {
 				List<Object> dataList = new ArrayList<>();
-				LOG.info("本次批量处理数据数：{}，当前第{}条", writerList.size(), index);
 				for (Record record : writerList) {
 					Map<String, Object> data = new HashMap<>(16);
 					StringBuffer sb = new StringBuffer();
@@ -218,6 +217,7 @@ public class RabbitmqWriter extends Writer {
 					.contentEncoding("UTF-8").build();
 			String message = JSONObject.toJSONString(dataList);
 			channel.basicPublish(exchange, routingKey, properties, message.getBytes("UTF-8"));
+			LOG.info("本次批量处理数据数：{}", dataList.size());
 			dataList.clear();
 			count++;
 		}
