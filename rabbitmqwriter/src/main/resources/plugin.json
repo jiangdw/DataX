@@ -1,6 +1,6 @@
 {
     "name": "rabbitmqwriter",
-    "class": "com.alibaba.datax.plugin.writer.txtfilewriter.TxtFileWriter",
-    "description": "useScene: test. mechanism: use datax framework to transport data to rabbitmq. warn: The more you know about the data, the less problems you encounter.",
-    "developer": "wxhitocas"
+    "class": "com.alibaba.datax.plugin.writer.rabbitmqwriter.RabbitmqWriter",
+    "description": "异构数据源同步数据到rabbitmq",
+    "developer": "hitocas-jiangdw"
 }

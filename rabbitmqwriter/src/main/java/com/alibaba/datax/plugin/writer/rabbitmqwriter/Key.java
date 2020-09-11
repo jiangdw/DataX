@@ -1,4 +1,4 @@
-package com.alibaba.datax.plugin.writer.txtfilewriter;
+package com.alibaba.datax.plugin.writer.rabbitmqwriter;
 
 /**
  * Created by jiangdw on 2020-09-09.

@@ -84,6 +84,7 @@
         <module>mongodbwriter</module>
         <module>adswriter</module>
         <module>ocswriter</module>
+        <module>rabbitmqwriter</module>
         <module>rdbmswriter</module>
         <module>hbase11xwriter</module>
         <module>hbase094xwriter</module>
