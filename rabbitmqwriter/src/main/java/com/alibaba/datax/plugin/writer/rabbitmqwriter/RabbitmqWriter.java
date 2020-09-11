@@ -29,8 +29,6 @@ import com.rabbitmq.client.ConnectionFactory;
  */
 public class RabbitmqWriter extends Writer {
 
-	private final static String WRITE_COLUMNS = "columns";
-
 	private final static int BATCH_SIZE = 1000;
 
 	public static class Job extends Writer.Job {
@@ -94,6 +92,8 @@ public class RabbitmqWriter extends Writer {
 		private String username;
 		private String password;
 		private String vhost;
+		private String fieldDelimiter;
+		private Boolean jointColumn;
 
 		@Override
 		public void init() {
@@ -106,11 +106,12 @@ public class RabbitmqWriter extends Writer {
 			username = this.writerSliceConfig.getString(Key.USERNAME, "admin");
 			password = this.writerSliceConfig.getString(Key.PASSWORD, "");
 			vhost = this.writerSliceConfig.getString(Key.VHOST, "/");
+			fieldDelimiter = this.writerSliceConfig.getString(Key.FIELD_DELIMITER, ",");
+			jointColumn = this.writerSliceConfig.getBool(Key.FIELD_DELIMITER, false);
 
-			columnList = JSONArray.parseArray(this.writerSliceConfig.getString(WRITE_COLUMNS), RabbitmqColumn.class);
+			columnList = JSONArray.parseArray(this.writerSliceConfig.getString(Key.COLUMN), RabbitmqColumn.class);
 
-			LOG.info("配置：{}  列信息：", JSONObject.toJSONString(writerSliceConfig),
-					this.writerSliceConfig.getString(WRITE_COLUMNS));
+			LOG.info("配置：{}  列信息：", JSONObject.toJSONString(writerSliceConfig), this.writerSliceConfig.getString(Key.COLUMN));
 		}
 
 		@Override
@@ -172,16 +173,18 @@ public class RabbitmqWriter extends Writer {
 				LOG.info("本次批量处理数据数：{}，当前第", writerList.size());
 				for (Record record : writerList) {
 					Map<String, Object> data = new HashMap<>(16);
+					StringBuffer sb = new StringBuffer();
 					int length = record.getColumnNumber();
-					if (length > 1) {
-						for (int i = 0; i < length; i++) {
-							Column column = record.getColumn(i);
-							data.put(columnList.get(i).getName(), column.getRawData());
-						}
-						dataList.add(data);
+					for (int i = 0; i < length; i++) {
+						Column column = record.getColumn(i);
+						data.put(columnList.get(i).getName(), column.getRawData());
+						sb.append(column.getRawData()).append(fieldDelimiter);
+					}
+					// 拼接字段以间隔符号隔开
+					if (jointColumn) {
+						dataList.add(sb.toString().substring(0, sb.length() -1 ));
 					} else {
-						Column column = record.getColumn(0);
-						dataList.add(column.getRawData());
+						dataList.add(data);
 					}
 					
 					index++;

@@ -12,4 +12,7 @@ public class Key {
     public static final String EXCHANGE = "exchange";
     public static final String ROUTINGKEY = "routingKey";
     public static final String QUEUE = "queue";
+    public static final String COLUMN = "column";
+    public static final String FIELD_DELIMITER = "fieldDelimiter";
+    public static final String JOINT_COLUMN = "jointColumn";
 }

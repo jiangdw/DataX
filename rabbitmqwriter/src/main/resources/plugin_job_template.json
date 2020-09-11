@@ -1,20 +1,22 @@
 {
-  "name": "rabbitmqwriter",
-  "parameter":{
-    "host":"192.168.20.112",
-    "port":"5672",
-    "username":"admin",
-    "password":"hitocas",
-    "exchange":"datax_exchange",
-    "vhost":"/",
-    "queue":"datax_queue",
-    "routingKey":"datax.message",
-    "publisherConfirms":1,
-    "columns":[
-      {
-        "name":"message",
-        "type":"String"
-      }
-    ]
-  }
+	"name": "rabbitmqwriter",
+	"parameter": {
+		"host": "192.168.20.112",
+		"port": "5672",
+		"username": "admin",
+		"password": "hitocas",
+		"exchange": "datax_exchange",
+		"vhost": "/",
+		"queue": "datax_queue",
+		"routingKey": "datax.message",
+		"publisherConfirms": 1,
+		"jointColumn": false,
+		"fieldDelimiter": ",",
+		"column": [
+			{
+				"name": "message",
+				"type": "String"
+			}
+		]
+	}
 }
