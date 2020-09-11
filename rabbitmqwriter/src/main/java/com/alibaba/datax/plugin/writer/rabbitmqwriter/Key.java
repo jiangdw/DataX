@@ -15,4 +15,5 @@ public class Key {
     public static final String COLUMN = "column";
     public static final String FIELD_DELIMITER = "fieldDelimiter";
     public static final String JOINT_COLUMN = "jointColumn";
+    public static final String BATCH_SIZE = "batchSize";
 }

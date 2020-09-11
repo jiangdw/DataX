@@ -29,8 +29,6 @@ import com.rabbitmq.client.ConnectionFactory;
  */
 public class RabbitmqWriter extends Writer {
 
-	private final static int BATCH_SIZE = 1000;
-
 	public static class Job extends Writer.Job {
 		private static final Logger LOG = LoggerFactory.getLogger(Job.class);
 
@@ -74,16 +72,8 @@ public class RabbitmqWriter extends Writer {
 	public static class Task extends Writer.Task {
 		private static final Logger LOG = LoggerFactory.getLogger(Task.class);
 
-		private int count = 0;
-
 		private Configuration writerSliceConfig;
-
-		private List<RabbitmqColumn> columnList = null;
-
-		private String queue;
-		private String routingKey;
-		private String exchange;
-
+		
 		private Connection connection = null;
 		private Channel channel = null;
 
@@ -92,8 +82,16 @@ public class RabbitmqWriter extends Writer {
 		private String username;
 		private String password;
 		private String vhost;
+		private String queue;
+		private String routingKey;
+		private String exchange;
 		private String fieldDelimiter;
 		private Boolean jointColumn;
+		private Integer batchSize;
+		
+		private List<RabbitmqColumn> columnList = null;
+		
+		private int count = 0;
 
 		@Override
 		public void init() {
@@ -107,15 +105,12 @@ public class RabbitmqWriter extends Writer {
 			password = this.writerSliceConfig.getString(Key.PASSWORD, "");
 			vhost = this.writerSliceConfig.getString(Key.VHOST, "/");
 			fieldDelimiter = this.writerSliceConfig.getString(Key.FIELD_DELIMITER, ",");
-			jointColumn = this.writerSliceConfig.getBool(Key.FIELD_DELIMITER, false);
+			jointColumn = this.writerSliceConfig.getBool(Key.JOINT_COLUMN, false);
+			batchSize = this.writerSliceConfig.getInt(Key.BATCH_SIZE, 10000);
 
 			columnList = JSONArray.parseArray(this.writerSliceConfig.getString(Key.COLUMN), RabbitmqColumn.class);
-
 			LOG.info("配置：{}  列信息：", JSONObject.toJSONString(writerSliceConfig), this.writerSliceConfig.getString(Key.COLUMN));
-		}
 
-		@Override
-		public void prepare() {
 			ConnectionFactory connectionFactory = new ConnectionFactory();
 			connectionFactory.setHost(host);
 			connectionFactory.setPort(getPort());
@@ -124,8 +119,8 @@ public class RabbitmqWriter extends Writer {
 			connectionFactory.setVirtualHost(vhost);
 
 			try {
-				Connection connection = connectionFactory.newConnection();
-				Channel channel = connection.createChannel();
+				connection = connectionFactory.newConnection();
+				channel = connection.createChannel();
 				// 创建一个type=topic 持久化的 非自动删除的交换器
 				channel.exchangeDeclare(exchange, BuiltinExchangeType.TOPIC, true, false, null);
 				// 创建一个持久化 排他的 非自动删除的队列
@@ -138,6 +133,10 @@ public class RabbitmqWriter extends Writer {
 			check(connection, channel);
 		}
 
+		@Override
+		public void prepare() {
+		}
+
 		public int getPort() {
 			return null == port ? 5672 : port;
 		}
@@ -145,12 +144,12 @@ public class RabbitmqWriter extends Writer {
 		@Override
 		public void startWrite(RecordReceiver recordReceiver) {
 			LOG.info("begin do write...");
-			List<Record> writerList = new ArrayList<>(BATCH_SIZE);
+			List<Record> writerList = new ArrayList<>(batchSize);
 			Record record;
 			long total = 0;
 			while ((record = recordReceiver.getFromReader()) != null) {
 				writerList.add(record);
-				if (writerList.size() >= BATCH_SIZE) {
+				if (writerList.size() >= batchSize) {
 					total += doBatchInsert(writerList);
 					writerList.clear();
 				}
@@ -170,7 +169,7 @@ public class RabbitmqWriter extends Writer {
 			int index = 0;
 			try {
 				List<Object> dataList = new ArrayList<>();
-				LOG.info("本次批量处理数据数：{}，当前第", writerList.size());
+				LOG.info("本次批量处理数据数：{}，当前第{}条", writerList.size(), index);
 				for (Record record : writerList) {
 					Map<String, Object> data = new HashMap<>(16);
 					StringBuffer sb = new StringBuffer();

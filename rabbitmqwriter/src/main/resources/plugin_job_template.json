@@ -9,7 +9,7 @@
 		"vhost": "/",
 		"queue": "datax_queue",
 		"routingKey": "datax.message",
-		"publisherConfirms": 1,
+		"batchSize": 10000,
 		"jointColumn": false,
 		"fieldDelimiter": ",",
 		"column": [
