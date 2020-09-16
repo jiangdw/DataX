@@ -94,6 +94,13 @@
             <artifactId>plugin-unstructured-storage-util</artifactId>
             <version>${datax-project-version}</version>
         </dependency>
+        
+		<dependency>
+		    <groupId>org.apache.parquet</groupId>
+		    <artifactId>parquet-hadoop</artifactId>
+		    <version>1.11.1</version>
+		</dependency>
+        
 
     </dependencies>
 
