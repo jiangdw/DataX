@@ -87,6 +87,8 @@ public class RabbitmqWriter extends Writer {
 		private String exchange;
 		private String fieldDelimiter;
 		private Boolean jointColumn;
+		private String messagePrefix;
+		private String messageSuffix;
 		private Integer batchSize;
 		
 		private List<RabbitmqColumn> columnList = null;
@@ -106,6 +108,8 @@ public class RabbitmqWriter extends Writer {
 			vhost = this.writerSliceConfig.getString(Key.VHOST, "/");
 			fieldDelimiter = this.writerSliceConfig.getString(Key.FIELD_DELIMITER, ",");
 			jointColumn = this.writerSliceConfig.getBool(Key.JOINT_COLUMN, false);
+			messagePrefix = this.writerSliceConfig.getString(Key.MESSAGE_PREFIX, "");
+			messageSuffix = this.writerSliceConfig.getString(Key.MESSAGE_SUFFIX, "");
 			batchSize = this.writerSliceConfig.getInt(Key.BATCH_SIZE, 10000);
 
 			columnList = JSONArray.parseArray(this.writerSliceConfig.getString(Key.COLUMN), RabbitmqColumn.class);
@@ -180,7 +184,9 @@ public class RabbitmqWriter extends Writer {
 					}
 					// 拼接字段以间隔符号隔开
 					if (jointColumn) {
-						dataList.add(sb.toString().substring(0, sb.length() -1 ));
+						// 给拼接的字符串增加前缀和后缀
+						String message = messagePrefix + sb.toString().substring(0, sb.length() - 1) + messageSuffix;
+						dataList.add(message);
 					} else {
 						dataList.add(data);
 					}
