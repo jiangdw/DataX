@@ -1,0 +1,6 @@
+{
+    "name": "parquetfilereader",
+    "class": "com.alibaba.datax.plugin.reader.parquetfilereader.ParquetFileReader",
+    "description": "useScene: test. mechanism: use datax framework to transport data from parquet file.",
+    "developer": "hitocas-jiangdw"
+}

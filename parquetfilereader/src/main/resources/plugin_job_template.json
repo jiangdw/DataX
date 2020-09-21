@@ -1,0 +1,57 @@
+{
+    "name": "parquetfilereader",
+    "parameter": {
+        "path": [],
+        "encoding": "",
+        "column": [
+			{
+				"name": "MMSI",
+				"type": "String"
+			},
+			{
+				"name": "ROT",
+				"type": "String"
+			},
+			{
+				"name": "ClassType",
+				"type": "String"
+			},
+			{
+				"name": "PosTime",
+				"type": "String"
+			},
+			{
+				"name": "Lon",
+				"type": "String"
+			},
+			{
+				"name": "Lat",
+				"type": "String"
+			},
+			{
+				"name": "Course",
+				"type": "String"
+			},
+			{
+				"name": "TrueHeading",
+				"type": "String"
+			},
+			{
+				"name": "Speed",
+				"type": "String"
+			},
+			{
+				"name": "NavigationStatus",
+				"type": "String"
+			},
+			{
+				"name": "Accuracy",
+				"type": "String"
+			},
+			{
+				"name": "ReceiveTime",
+				"type": "String"
+			}
+		]
+    }
+}

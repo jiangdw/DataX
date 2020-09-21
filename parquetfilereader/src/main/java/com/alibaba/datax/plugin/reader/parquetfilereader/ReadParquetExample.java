@@ -1,4 +1,4 @@
-package com.alibaba.datax.plugin.reader.hdfsreader;
+package com.alibaba.datax.plugin.reader.parquetfilereader;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -24,7 +24,7 @@ public class ReadParquetExample {
 	public static void main(String[] args) throws Exception {
 //		parquetWriter("/users/jiangdw/desktop/tmp/xxx.par", "/users/jiangdw/desktop/tmp/par.txt");
 //		parquetReader("/users/jiangdw/desktop/tmp/part-00000-1e4ba785-c92a-421f-80e4-1afe2a2b4779-c000.snappy.parquet");
-		parquetReaderV2("/users/jiangdw/desktop/tmp/part-00000-1e4ba785-c92a-421f-80e4-1afe2a2b4779-c000.snappy.parquet");
+		parquetReaderV2("/users/jiangdw/desktop/tmp/datax/par/part-00000-1e4ba785-c92a-421f-80e4-1afe2a2b4779-c000.snappy.parquet");
 	}
 
 	public static void parquetReaderV2(String inPath) throws Exception {
@@ -33,10 +33,32 @@ public class ReadParquetExample {
 		ParquetReader<Group> build = reader.build();
 		Group line = null;
 		while ((line = build.read()) != null) {
-        	System.out.println(line.toString());
-
+			try {
+				for (int i=0;i<12;i++) {
+					String xx = line.getString(i, 0);
+					i++;
+					System.out.println(xx);
+				}
+//				System.out.println(line.getString("MMSI", 0));
+//				System.out.println(line.getString("ROT", 0));
+//				System.out.println(line.getString("ClassType", 0));
+//				System.out.println(line.getString("PosTime", 0));
+//				System.out.println(line.getString("Lon", 0));
+//				System.out.println(line.getString("Lat", 0));
+//				System.out.println(line.getString("Course", 0));
+//				System.out.println(line.getString("TrueHeading", 0));
+//				System.out.println(line.getString("Speed", 0));
+//				System.out.println(line.getString("NavigationStatus", 0));
+//				System.out.println(line.getString("Accuracy", 0));
+//				System.out.println(line.getString("ReceiveTime", 0));
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+//				e.printStackTrace();
+				System.out.println(e.getLocalizedMessage());
+			}
+//        	System.out.println(line.toString());
 		}
-		System.out.println("读取结束");
+		System.out.println("读取结束。。。。");
 	}
 
 	public static void parquetReader(String inPath) throws Exception {
