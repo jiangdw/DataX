@@ -67,6 +67,7 @@
         <module>opentsdbreader</module>
         <module>cassandrareader</module>
         <module>gdbreader</module>
+        <module>parquetfilereader</module>
 
         <!-- writer -->
         <module>mysqlwriter</module>
@@ -96,6 +97,7 @@
         <module>gdbwriter</module>
         <module>cassandrawriter</module>
         <module>clickhousewriter</module>
+        <module>rabbitmqwriter</module>
         <!-- common support module -->
         <module>plugin-rdbms-util</module>
         <module>plugin-unstructured-storage-util</module>
