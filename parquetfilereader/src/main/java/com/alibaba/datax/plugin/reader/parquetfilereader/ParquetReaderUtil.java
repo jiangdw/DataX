@@ -72,7 +72,8 @@ public class ParquetReaderUtil {
 						sourceMap.put(parquetColumn.getName(), parquetColumnValue);
 					} catch (Exception e) {
 						sourceMap.put(parquetColumn.getName(), "");
-						LOG.warn("解析文件{}的属性{}出现异常：{}", context, parquetColumn.getName(), e.getLocalizedMessage());
+						// 未解析到的属性值设置未空
+						LOG.debug("解析文件{}的属性{}出现异常：{}", context, parquetColumn.getName(), e.getLocalizedMessage());
 						continue;
 					}
 				}
