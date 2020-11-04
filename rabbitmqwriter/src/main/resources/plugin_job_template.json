@@ -11,6 +11,7 @@
 		"routingKey": "datax.message",
 		"batchSize": 10000,
 		"jointColumn": false,
+		"reorderArrayLength": 0,
 		"messagePrefix": "",
 		"messageSuffix": "",
 		"fieldDelimiter": ",",

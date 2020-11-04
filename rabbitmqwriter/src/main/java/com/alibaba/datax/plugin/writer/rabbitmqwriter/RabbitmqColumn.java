@@ -6,6 +6,8 @@ package com.alibaba.datax.plugin.writer.rabbitmqwriter;
  *
  */
 public class RabbitmqColumn {
+	
+	private Integer index;
 
 	private String name;
 
@@ -25,6 +27,14 @@ public class RabbitmqColumn {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public Integer getIndex() {
+		return index;
+	}
+
+	public void setIndex(Integer index) {
+		this.index = index;
 	}
 
 }

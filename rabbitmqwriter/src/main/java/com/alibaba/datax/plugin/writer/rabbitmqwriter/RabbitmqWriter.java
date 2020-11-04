@@ -87,6 +87,7 @@ public class RabbitmqWriter extends Writer {
 		private String exchange;
 		private String fieldDelimiter;
 		private Boolean jointColumn;
+		private Integer reorderArrayLength;
 		private String messagePrefix;
 		private String messageSuffix;
 		private Integer batchSize;
@@ -108,6 +109,7 @@ public class RabbitmqWriter extends Writer {
 			vhost = this.writerSliceConfig.getString(Key.VHOST, "/");
 			fieldDelimiter = this.writerSliceConfig.getString(Key.FIELD_DELIMITER, ",");
 			jointColumn = this.writerSliceConfig.getBool(Key.JOINT_COLUMN, false);
+			reorderArrayLength = this.writerSliceConfig.getInt(Key.RERODER_ARRAY_LENGTH, 0);
 			messagePrefix = this.writerSliceConfig.getString(Key.MESSAGE_PREFIX, "");
 			messageSuffix = this.writerSliceConfig.getString(Key.MESSAGE_SUFFIX, "");
 			batchSize = this.writerSliceConfig.getInt(Key.BATCH_SIZE, 10000);
@@ -177,11 +179,25 @@ public class RabbitmqWriter extends Writer {
 					Map<String, Object> data = new HashMap<>(16);
 					StringBuffer sb = new StringBuffer();
 					int length = record.getColumnNumber();
+					
+					// 如果解析的字段需要重组顺序
+					Object[] newArray;
+					if (reorderArrayLength > 0) {
+						newArray = new Object[reorderArrayLength];
+					} else {
+						newArray = new Object[length];
+					}
+					
 					for (int i = 0; i < length; i++) {
 						Column column = record.getColumn(i);
 						data.put(columnList.get(i).getName(), column.getRawData());
-						sb.append(column.getRawData()).append(fieldDelimiter);
+						newArray[columnList.get(i).getIndex()] = column.getRawData();
 					}
+					
+					for (Object object : newArray) {
+						sb.append(object == null ? "" : object).append(fieldDelimiter);
+					}
+					
 					// 拼接字段以间隔符号隔开
 					if (jointColumn) {
 						// 给拼接的字符串增加前缀和后缀
