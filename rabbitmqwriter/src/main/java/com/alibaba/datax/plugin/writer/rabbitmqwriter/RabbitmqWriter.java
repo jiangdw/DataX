@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -190,8 +191,26 @@ public class RabbitmqWriter extends Writer {
 					
 					for (int i = 0; i < length; i++) {
 						Column column = record.getColumn(i);
-						data.put(columnList.get(i).getName(), column.getRawData());
-						newArray[columnList.get(i).getIndex()] = column.getRawData();
+						RabbitmqColumn rabbitmqColumn = columnList.get(i);
+						String operation = rabbitmqColumn.getOperation();
+						Object rawData = column.getRawData();
+						// 对原始数据值进行转换
+						if (null != rawData) {
+							if (StringUtils.startsWith(operation, "/")) {
+								rawData = Double.valueOf(rawData + "") / Double.valueOf(operation.toString().substring(1));
+							}
+							if (StringUtils.startsWith(operation, "*")) {
+								rawData = Double.valueOf(rawData + "") * Double.valueOf(operation.toString().substring(1));
+							}
+							if (StringUtils.startsWith(operation, "-")) {
+								rawData = Double.valueOf(rawData + "") - Double.valueOf(operation.toString().substring(1));
+							}
+							if (StringUtils.startsWith(operation, "+")) {
+								rawData = Double.valueOf(rawData + "") + Double.valueOf(operation.toString().substring(1));
+							}
+						}
+						data.put(rabbitmqColumn.getName(), rawData);
+						newArray[rabbitmqColumn.getIndex()] = rawData;
 					}
 					
 					for (Object object : newArray) {

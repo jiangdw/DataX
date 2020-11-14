@@ -7,11 +7,19 @@ package com.alibaba.datax.plugin.writer.rabbitmqwriter;
  */
 public class RabbitmqColumn {
 	
+	/**
+	 * 解析的字符串中的位置索引
+	 */
 	private Integer index;
 
 	private String name;
 
 	private String type;
+	
+	/**
+	 * 操作：/100，*100，+100，-100
+	 */
+	private String operation;
 
 	public String getName() {
 		return name;
@@ -35,6 +43,14 @@ public class RabbitmqColumn {
 
 	public void setIndex(Integer index) {
 		this.index = index;
+	}
+
+	public String getOperation() {
+		return operation;
+	}
+
+	public void setOperation(String operation) {
+		this.operation = operation;
 	}
 
 }

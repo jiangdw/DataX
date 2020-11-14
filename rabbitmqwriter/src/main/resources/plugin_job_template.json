@@ -17,8 +17,10 @@
 		"fieldDelimiter": ",",
 		"column": [
 			{
+				"index": 0,
 				"name": "message",
-				"type": "String"
+				"type": "String",
+				"operation": "/100"
 			}
 		]
 	}
