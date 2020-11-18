@@ -1,6 +1,7 @@
 package com.alibaba.datax.plugin.writer.rabbitmqwriter;
 
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -196,17 +197,23 @@ public class RabbitmqWriter extends Writer {
 						Object rawData = column.getRawData();
 						// 对原始数据值进行转换
 						if (null != rawData) {
+							Double x = null;
 							if (StringUtils.startsWith(operation, "/")) {
-								rawData = Double.valueOf(rawData + "") / Double.valueOf(operation.toString().substring(1));
+								x = Double.valueOf(rawData + "") / Double.valueOf(operation.toString().substring(1));
 							}
 							if (StringUtils.startsWith(operation, "*")) {
-								rawData = Double.valueOf(rawData + "") * Double.valueOf(operation.toString().substring(1));
+								x = Double.valueOf(rawData + "") * Double.valueOf(operation.toString().substring(1));
 							}
 							if (StringUtils.startsWith(operation, "-")) {
-								rawData = Double.valueOf(rawData + "") - Double.valueOf(operation.toString().substring(1));
+								x = Double.valueOf(rawData + "") - Double.valueOf(operation.toString().substring(1));
 							}
 							if (StringUtils.startsWith(operation, "+")) {
-								rawData = Double.valueOf(rawData + "") + Double.valueOf(operation.toString().substring(1));
+								x = Double.valueOf(rawData + "") + Double.valueOf(operation.toString().substring(1));
+							}
+							if (x != null) {
+								NumberFormat nf = NumberFormat.getInstance();
+						        nf.setGroupingUsed(false);
+								rawData = nf.format(x.longValue());
 							}
 						}
 						data.put(rabbitmqColumn.getName(), rawData);
@@ -299,4 +306,5 @@ public class RabbitmqWriter extends Writer {
 			}
 		}
 	}
+	
 }
