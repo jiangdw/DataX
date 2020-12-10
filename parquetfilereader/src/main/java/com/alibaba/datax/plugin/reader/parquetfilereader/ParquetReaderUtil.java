@@ -68,7 +68,26 @@ public class ParquetReaderUtil {
 				sourceMap = new HashMap<>();
 				for (ParquetColumn parquetColumn : column) {
 					try {
-						String parquetColumnValue = line.getString(parquetColumn.getName(), 0);
+						String parquetColumnValue = "";
+						String field = parquetColumn.getName();
+						String type = parquetColumn.getType();
+						
+						if ("string".equalsIgnoreCase(type)) {
+							parquetColumnValue = line.getString(field, 0);
+						} else if ("integer".equalsIgnoreCase(type)) {
+							parquetColumnValue = String.valueOf(line.getInteger(field, 0));
+						} else if ("long".equalsIgnoreCase(type)) {
+							parquetColumnValue = String.valueOf(line.getLong(field, 0));
+						} else if ("boolean".equalsIgnoreCase(type)) {
+							parquetColumnValue = String.valueOf(line.getBoolean(field, 0));
+						} else if ("float".equalsIgnoreCase(type)) {
+							parquetColumnValue = String.valueOf(line.getFloat(field, 0));
+						} else if ("double".equalsIgnoreCase(type)) {
+							parquetColumnValue = String.valueOf(line.getDouble(field, 0));
+						} else if ("int96".equalsIgnoreCase(type)) {
+							parquetColumnValue = String.valueOf(line.getInt96(field, 0));
+						}
+						
 						sourceMap.put(parquetColumn.getName(), parquetColumnValue);
 					} catch (Exception e) {
 						sourceMap.put(parquetColumn.getName(), "");
@@ -140,6 +159,14 @@ public class ParquetReaderUtil {
 					switch (type) {
 					case STRING:
 						columnGenerated = new StringColumn(columnValue);
+						break;
+					case INTEGER:
+						try {
+							columnGenerated = new LongColumn(columnValue);
+						} catch (Exception e) {
+							throw new IllegalArgumentException(
+									String.format("类型转换错误, 无法将[%s] 转换为[%s]", columnValue, "INTEGER"));
+						}
 						break;
 					case LONG:
 						try {
@@ -228,7 +255,7 @@ public class ParquetReaderUtil {
 	}
 
 	private enum Type {
-		STRING, LONG, BOOLEAN, DOUBLE, DATE,;
+		STRING, INTEGER, LONG, BOOLEAN, DOUBLE, DATE;
 	}
 
 	/**

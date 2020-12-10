@@ -196,7 +196,7 @@ public class RabbitmqWriter extends Writer {
 						String operation = rabbitmqColumn.getOperation();
 						Object rawData = column.getRawData();
 						// 对原始数据值进行转换
-						if (null != rawData) {
+						if (null != rawData && StringUtils.isNotBlank(operation)) {
 							// 判断rawData是否为字符类型数据，如果为字符类型则且不能为空的字符串
 							// 或者不为字符类型的
 							if ((rawData instanceof String && StringUtils.isNotBlank(rawData.toString()))

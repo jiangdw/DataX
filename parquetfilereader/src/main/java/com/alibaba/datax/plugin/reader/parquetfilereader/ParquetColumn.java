@@ -13,6 +13,8 @@ import com.alibaba.fastjson.JSON;
  *
  */
 public class ParquetColumn {
+	
+	private Integer index;
 
 	private String name;
 
@@ -61,7 +63,15 @@ public class ParquetColumn {
 		this.dateParse = dateParse;
 	}
 	
-    public String toJSONString() {
+    public Integer getIndex() {
+		return index;
+	}
+
+	public void setIndex(Integer index) {
+		this.index = index;
+	}
+
+	public String toJSONString() {
         return ParquetColumn.toJSONString(this);
     }
 
