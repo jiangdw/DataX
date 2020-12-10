@@ -197,23 +197,28 @@ public class RabbitmqWriter extends Writer {
 						Object rawData = column.getRawData();
 						// 对原始数据值进行转换
 						if (null != rawData) {
-							Double x = null;
-							if (StringUtils.startsWith(operation, "/")) {
-								x = Double.valueOf(rawData + "") / Double.valueOf(operation.toString().substring(1));
-							}
-							if (StringUtils.startsWith(operation, "*")) {
-								x = Double.valueOf(rawData + "") * Double.valueOf(operation.toString().substring(1));
-							}
-							if (StringUtils.startsWith(operation, "-")) {
-								x = Double.valueOf(rawData + "") - Double.valueOf(operation.toString().substring(1));
-							}
-							if (StringUtils.startsWith(operation, "+")) {
-								x = Double.valueOf(rawData + "") + Double.valueOf(operation.toString().substring(1));
-							}
-							if (x != null) {
-								NumberFormat nf = NumberFormat.getInstance();
-						        nf.setGroupingUsed(false);
-								rawData = nf.format(x.longValue());
+							// 判断rawData是否为字符类型数据，如果为字符类型则且不能为空的字符串
+							// 或者不为字符类型的
+							if ((rawData instanceof String && StringUtils.isNotBlank(rawData.toString()))
+								|| !(rawData instanceof String)) {
+								Double x = null;
+								if (StringUtils.startsWith(operation, "/")) {
+									x = Double.valueOf(rawData + "") / Double.valueOf(operation.toString().substring(1));
+								}
+								if (StringUtils.startsWith(operation, "*")) {
+									x = Double.valueOf(rawData + "") * Double.valueOf(operation.toString().substring(1));
+								}
+								if (StringUtils.startsWith(operation, "-")) {
+									x = Double.valueOf(rawData + "") - Double.valueOf(operation.toString().substring(1));
+								}
+								if (StringUtils.startsWith(operation, "+")) {
+									x = Double.valueOf(rawData + "") + Double.valueOf(operation.toString().substring(1));
+								}
+								if (x != null) {
+									NumberFormat nf = NumberFormat.getInstance();
+							        nf.setGroupingUsed(false);
+									rawData = nf.format(x.longValue());
+								}
 							}
 						}
 						data.put(rabbitmqColumn.getName(), rawData);
