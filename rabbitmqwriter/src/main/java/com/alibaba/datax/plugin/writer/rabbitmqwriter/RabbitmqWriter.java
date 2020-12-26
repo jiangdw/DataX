@@ -246,7 +246,6 @@ public class RabbitmqWriter extends Writer {
 					if (jointColumn) {
 						// 给拼接的字符串增加前缀和后缀
 						String message = messagePrefix + sb.toString().substring(0, sb.length() - 1) + messageSuffix;
-						System.out.println(message);
 						dataList.add(message);
 					} else {
 						dataList.add(data);
