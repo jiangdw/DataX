@@ -1,6 +1,8 @@
 package com.alibaba.datax.plugin.writer.rabbitmqwriter;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -203,21 +205,32 @@ public class RabbitmqWriter extends Writer {
 								|| !(rawData instanceof String)) {
 								Double x = null;
 								if (StringUtils.startsWith(operation, "/")) {
-									x = Double.valueOf(rawData + "") / Double.valueOf(operation.toString().substring(1));
+									BigDecimal dx = new BigDecimal(String.valueOf(rawData));
+									BigDecimal divisor = new BigDecimal(operation.toString().substring(1));
+									// 小数点后15位，四舍五入
+									x = dx.divide(divisor, 15, RoundingMode.HALF_EVEN).doubleValue();
 								}
 								if (StringUtils.startsWith(operation, "*")) {
-									x = Double.valueOf(rawData + "") * Double.valueOf(operation.toString().substring(1));
+									BigDecimal dx = new BigDecimal(String.valueOf(rawData));
+									BigDecimal multiplicand = new BigDecimal(operation.toString().substring(1));
+									x = dx.multiply(multiplicand).doubleValue();
 								}
 								if (StringUtils.startsWith(operation, "-")) {
-									x = Double.valueOf(rawData + "") - Double.valueOf(operation.toString().substring(1));
+									BigDecimal dx = new BigDecimal(String.valueOf(rawData));
+									BigDecimal subtrahend = new BigDecimal(operation.toString().substring(1));
+									x = dx.subtract(subtrahend).doubleValue();
 								}
 								if (StringUtils.startsWith(operation, "+")) {
-									x = Double.valueOf(rawData + "") + Double.valueOf(operation.toString().substring(1));
+									BigDecimal dx = new BigDecimal(String.valueOf(rawData));
+									BigDecimal augend = new BigDecimal(operation.toString().substring(1));
+									x = dx.add(augend).doubleValue();
 								}
+								
+								// 如果计算出来的x不为null，则将数字类型转为字符串
 								if (x != null) {
 									NumberFormat nf = NumberFormat.getInstance();
 							        nf.setGroupingUsed(false);
-									rawData = nf.format(x.longValue());
+									rawData = nf.format(x.doubleValue());
 								}
 							}
 						}
@@ -233,6 +246,7 @@ public class RabbitmqWriter extends Writer {
 					if (jointColumn) {
 						// 给拼接的字符串增加前缀和后缀
 						String message = messagePrefix + sb.toString().substring(0, sb.length() - 1) + messageSuffix;
+						System.out.println(message);
 						dataList.add(message);
 					} else {
 						dataList.add(data);
