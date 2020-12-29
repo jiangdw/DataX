@@ -202,9 +202,9 @@ public class Engine {
         int exitCode = 0;
         try {
         	//设置运行的datax的家目录
-            System.setProperty("datax.home", "/users/jiangdw/hito-workspace/DataX/target/datax/datax");
+//            System.setProperty("datax.home", "/users/jiangdw/hito-workspace/DataX/target/datax/datax");
             //设置datax的运行脚本信息
-            args = new String[]{"-mode", "standalone", "-jobid", "-1", "-job", "/users/jiangdw/desktop/tmp/datax/job/par_mq.json"};
+//            args = new String[]{"-mode", "standalone", "-jobid", "-1", "-job", "/users/jiangdw/desktop/tmp/datax/job/par_mq.json"};
             Engine.entry(args);
         } catch (Throwable e) {
             exitCode = 1;
