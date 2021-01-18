@@ -165,7 +165,7 @@ public class RabbitmqWriter extends Writer {
 				}
 			}
 			if (!writerList.isEmpty()) {
-				LOG.info("本次需要处理的数据大小：{}", writerList.size());
+				// LOG.info("本次需要处理的数据大小：{}", writerList.size());
 				total += doBatchInsert(writerList);
 				writerList.clear();
 			}
@@ -283,7 +283,7 @@ public class RabbitmqWriter extends Writer {
 					.contentEncoding("UTF-8").build();
 			String message = JSONObject.toJSONString(dataList);
 			channel.basicPublish(exchange, routingKey, properties, message.getBytes("UTF-8"));
-			LOG.info("本次批量处理数据数：{}", dataList.size());
+//			LOG.info("本次批量处理数据数：{}", dataList.size());
 			dataList.clear();
 			count++;
 		}
