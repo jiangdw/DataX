@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,6 +98,7 @@ public class RabbitmqWriter extends Writer {
 		private String messagePrefix;
 		private String messageSuffix;
 		private Integer batchSize;
+		private String nullFormat;
 		
 		private List<RabbitmqColumn> columnList = null;
 		
@@ -117,6 +121,7 @@ public class RabbitmqWriter extends Writer {
 			messagePrefix = this.writerSliceConfig.getString(Key.MESSAGE_PREFIX, "");
 			messageSuffix = this.writerSliceConfig.getString(Key.MESSAGE_SUFFIX, "");
 			batchSize = this.writerSliceConfig.getInt(Key.BATCH_SIZE, 10000);
+			nullFormat = this.writerSliceConfig.getString(Key.NULL_FORMAT, "null");
 
 			columnList = JSONArray.parseArray(this.writerSliceConfig.getString(Key.COLUMN), RabbitmqColumn.class);
 			LOG.info("配置：{}  列信息：", JSONObject.toJSONString(writerSliceConfig), this.writerSliceConfig.getString(Key.COLUMN));
@@ -195,45 +200,73 @@ public class RabbitmqWriter extends Writer {
 					for (int i = 0; i < length; i++) {
 						Column column = record.getColumn(i);
 						RabbitmqColumn rabbitmqColumn = columnList.get(i);
+						String type = rabbitmqColumn.getType();
 						String operation = rabbitmqColumn.getOperation();
 						Object rawData = column.getRawData();
+						
+						// 转换日期格式的字段
+						if (null != rawData && "date".equalsIgnoreCase(type)) {
+							String pattern = rabbitmqColumn.getPattern();
+							if (StringUtils.isBlank(pattern)) {
+								throw DataXException.asDataXException(RabbitmqWriterErrorCode.BAD_CONFIG_VALUE, "格式化日期格式的pattern参数不能为空！");
+							}
+							try {
+								SimpleDateFormat format = new SimpleDateFormat(pattern);
+								Date date = format.parse((String)rawData);
+								if ("timestamp".equalsIgnoreCase(rabbitmqColumn.getTranslateTo())) {
+									rawData = date.getTime() /1000;
+								}
+							} catch (ParseException e) {
+								throw DataXException.asDataXException(RabbitmqWriterErrorCode.EXECUTE_ERROR, "格式化日期错误！");
+							}
+						}
+						
 						// 对原始数据值进行转换
 						if (null != rawData && StringUtils.isNotBlank(operation)) {
 							// 判断rawData是否为字符类型数据，如果为字符类型则且不能为空的字符串
 							// 或者不为字符类型的
 							if ((rawData instanceof String && StringUtils.isNotBlank(rawData.toString()))
 								|| !(rawData instanceof String)) {
-								Double x = null;
-								if (StringUtils.startsWith(operation, "/")) {
-									BigDecimal dx = new BigDecimal(String.valueOf(rawData));
-									BigDecimal divisor = new BigDecimal(operation.toString().substring(1));
-									// 小数点后15位，四舍五入
-									x = dx.divide(divisor, 15, RoundingMode.HALF_EVEN).doubleValue();
-								}
-								if (StringUtils.startsWith(operation, "*")) {
-									BigDecimal dx = new BigDecimal(String.valueOf(rawData));
-									BigDecimal multiplicand = new BigDecimal(operation.toString().substring(1));
-									x = dx.multiply(multiplicand).doubleValue();
-								}
-								if (StringUtils.startsWith(operation, "-")) {
-									BigDecimal dx = new BigDecimal(String.valueOf(rawData));
-									BigDecimal subtrahend = new BigDecimal(operation.toString().substring(1));
-									x = dx.subtract(subtrahend).doubleValue();
-								}
-								if (StringUtils.startsWith(operation, "+")) {
-									BigDecimal dx = new BigDecimal(String.valueOf(rawData));
-									BigDecimal augend = new BigDecimal(operation.toString().substring(1));
-									x = dx.add(augend).doubleValue();
-								}
 								
-								// 如果计算出来的x不为null，则将数字类型转为字符串
-								if (x != null) {
-									NumberFormat nf = NumberFormat.getInstance();
-							        nf.setGroupingUsed(false);
-									rawData = nf.format(x.doubleValue());
+								// 过滤值为null字符串，并将其值重置为空字符串
+								if (StringUtils.equalsIgnoreCase(String.valueOf(rawData), nullFormat)) {
+									rawData = "";
+								} else {
+									Double x = null;
+									if (StringUtils.startsWith(operation, "/")) {
+										BigDecimal dx = new BigDecimal(String.valueOf(rawData));
+										BigDecimal divisor = new BigDecimal(operation.toString().substring(1));
+										// 小数点后15位，四舍五入
+										x = dx.divide(divisor, 15, RoundingMode.HALF_EVEN).doubleValue();
+									}
+									if (StringUtils.startsWith(operation, "*")) {
+										BigDecimal dx = new BigDecimal(String.valueOf(rawData));
+										BigDecimal multiplicand = new BigDecimal(operation.toString().substring(1));
+										x = dx.multiply(multiplicand).doubleValue();
+									}
+									if (StringUtils.startsWith(operation, "-")) {
+										BigDecimal dx = new BigDecimal(String.valueOf(rawData));
+										BigDecimal subtrahend = new BigDecimal(operation.toString().substring(1));
+										x = dx.subtract(subtrahend).doubleValue();
+									}
+									if (StringUtils.startsWith(operation, "+")) {
+										BigDecimal dx = new BigDecimal(String.valueOf(rawData));
+										BigDecimal augend = new BigDecimal(operation.toString().substring(1));
+										x = dx.add(augend).doubleValue();
+									}
+									
+									// 如果计算出来的x不为null，则将数字类型转为字符串
+									if (x != null) {
+										NumberFormat nf = NumberFormat.getInstance();
+								        nf.setGroupingUsed(false);
+								        nf.setMaximumFractionDigits(15);
+								        nf.setMinimumFractionDigits(1);
+										rawData = nf.format(x.doubleValue());
+									}
 								}
 							}
 						}
+						
 						data.put(rabbitmqColumn.getName(), rawData);
 						newArray[rabbitmqColumn.getIndex()] = rawData;
 					}
@@ -247,6 +280,7 @@ public class RabbitmqWriter extends Writer {
 						// 给拼接的字符串增加前缀和后缀
 						String message = messagePrefix + sb.toString().substring(0, sb.length() - 1) + messageSuffix;
 						dataList.add(message);
+						System.out.println(message);
 					} else {
 						dataList.add(data);
 					}

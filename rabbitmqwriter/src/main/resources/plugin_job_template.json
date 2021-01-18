@@ -15,12 +15,21 @@
 		"messagePrefix": "",
 		"messageSuffix": "",
 		"fieldDelimiter": ",",
+		"nullFormat": "null",
 		"column": [
 			{
 				"index": 0,
 				"name": "message",
 				"type": "String",
 				"operation": "/100"
+			},
+			{
+				"index": 1,
+				"name": "datetime",
+				"type": "Date",
+                "pattern": "yyyy-MM-dd HH:mm:ss",
+                "translateTo": "timestamp",
+                "timezone": "+0"
 			}
 		]
 	}

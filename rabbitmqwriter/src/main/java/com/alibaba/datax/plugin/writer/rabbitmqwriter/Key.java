@@ -19,4 +19,5 @@ public class Key {
     public static final String MESSAGE_PREFIX = "messagePrefix";
     public static final String MESSAGE_SUFFIX = "messageSuffix";
     public static final String BATCH_SIZE = "batchSize";
+    public static final String NULL_FORMAT = "nullFormat";
 }
