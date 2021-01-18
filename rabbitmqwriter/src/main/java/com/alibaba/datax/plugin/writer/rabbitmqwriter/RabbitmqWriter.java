@@ -217,7 +217,8 @@ public class RabbitmqWriter extends Writer {
 									rawData = date.getTime() /1000;
 								}
 							} catch (ParseException e) {
-								throw DataXException.asDataXException(RabbitmqWriterErrorCode.EXECUTE_ERROR, "格式化日期错误！");
+								rawData = "";
+								LOG.error("格式化日期错误: {}", rawData);
 							}
 						}
 						
@@ -280,7 +281,6 @@ public class RabbitmqWriter extends Writer {
 						// 给拼接的字符串增加前缀和后缀
 						String message = messagePrefix + sb.toString().substring(0, sb.length() - 1) + messageSuffix;
 						dataList.add(message);
-						System.out.println(message);
 					} else {
 						dataList.add(data);
 					}
